@@ -678,12 +678,19 @@ export class Essence implements Instance<EssenceValue, EssenceJS> {
     var { visualizations, dataCube, visualization, visResolve, colors } = this;
 
     splits = splits.updateWithFilter(this.getEffectiveFilter(), dataCube.dimensions);
-
     // If in manual mode stay there, keep the vis regardless of suggested strategy
     if (visResolve.isManual()) {
       strategy = VisStrategy.KeepAlways;
     }
-    if (this.splits.length() > 0 && splits.length() !== 0) strategy = VisStrategy.UnfairGame;
+
+    let currentSplits = this.splits;
+    let allSplitsChanging = currentSplits.allSplitsAreDifferent(splits);
+    let someSplitsChanging = currentSplits.someSplitsAreDifferent(splits);
+    if (allSplitsChanging && currentSplits.allBucketingProfileHasChanged(splits)) {
+      strategy = VisStrategy.FairGame;
+    } else if (someSplitsChanging && !currentSplits.allBucketingProfileHasChanged(splits)) {
+      strategy = VisStrategy.UnfairGame;
+    }
 
     if (strategy !== VisStrategy.KeepAlways && strategy !== VisStrategy.UnfairGame) {
       var visAndResolve = Essence.getBestVisualization(visualizations, dataCube, splits, colors, (strategy === VisStrategy.FairGame ? null : visualization));
@@ -719,6 +726,7 @@ export class Essence implements Instance<EssenceValue, EssenceJS> {
     var newSplits = value.splits.updateWithFilter(this.getEffectiveFilter(), this.dataCube.dimensions);
     if (value.splits === newSplits) return this;
     value.splits = newSplits;
+    value.visualization = null; // if splits change.. null out vis
     return new Essence(value);
   }
 
