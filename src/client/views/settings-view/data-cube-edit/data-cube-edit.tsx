@@ -258,7 +258,7 @@ export class DataCubeEdit extends React.Component<DataCubeEditProps, DataCubeEdi
     />;
   }
 
-  renderDimesionSuggestions() {
+  renderDimensionSuggestions() {
     const { dataCube } = this.state;
     return <SuggestionModal onAdd={null} onCancel={null} type="dimensions" dataCube={dataCube} />;
   }
@@ -363,8 +363,8 @@ export class DataCubeEdit extends React.Component<DataCubeEditProps, DataCubeEdi
           {tab.render.bind(this)()}
         </div>
       </div>
-      {this.renderMeasureSuggestions()}
-      {/*this.renderDimensionSuggestions()*/}
+      {/*this.renderMeasureSuggestions()*/}
+      {this.renderDimensionSuggestions()}
     </div>;
   }
 }
